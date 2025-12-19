@@ -2,65 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chødetz Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>iPhone Calculator</title>
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      background: #000;
-      color: white;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      touch-action: manipulation;
-    }
-    .calculator {
-      width: 320px;
-      max-width: 100%;
-      background: #000;
-      border-radius: 40px;
-      padding: 20px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    }
-    .display {
-      height: 220px;
-      text-align: right;
-      padding: 20px;
-      font-size: 60px;
-      font-weight: 300;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    .secondary {
-      font-size: 24px;
-      color: #aaa;
-      height: 40px;
-    }
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    button {
-      width: 100%;
-      height: 70px;
-      border: none;
-      border-radius: 50%;
-      font-size: 28px;
-      font-weight: 400;
-      transition: all 0.1s;
-    }
-    button:active {
-      transform: scale(0.95);
-      opacity: 0.8;
-    }
-    .gray { background: #a6a6a6; color: black; }
-    .orange { background: #f09a36; color: white; }
-    .dark { background: #333; color: white; }
-    .zero { grid-column: span 2; border-radius: 40px; }
+    body{margin:0;padding:0;height:100vh;background:#000;color:white;font-family:-apple-system,system-ui,sans-serif;display:flex;justify-content:center;align-items:center;overflow:hidden}
+    .calculator{width:320px;background:#000;border-radius:40px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,0.8);transition:transform .3s}
+    .display{height:220px;text-align:right;padding:20px;font-size:60px;font-weight:300;overflow:hidden}
+    .secondary{font-size:24px;color:#aaa;height:40px}
+    .buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    button{width:100%;height:70px;border:none;border-radius:50%;font-size:28px;transition:all .1s}
+    button:active{transform:scale(0.95);opacity:0.8}
+    .gray{background:#a6a6a6;color:black}
+    .orange{background:#f09a36;color:white}
+    .dark{background:#333;color:white}
+    .zero{grid-column:span 2;border-radius:40px}
   </style>
 </head>
 <body>
@@ -97,6 +65,7 @@
   </div>
 
   <script>
+    // Calculator logic
     let display = document.getElementById('primary');
     let secondary = document.getElementById('secondary');
     let current = '0';
@@ -110,8 +79,7 @@
 
     function formatNumber(num) {
       if (num.length > 9) return parseFloat(num).toExponential(5);
-      const formatted = parseFloat(num).toLocaleString('en-US', { maximumFractionDigits: 8 });
-      return formatted.replace(/,/g, ' ');
+      return parseFloat(num).toLocaleString('en-US', { maximumFractionDigits: 8 });
     }
 
     function num(digit) {
@@ -161,14 +129,12 @@
       let prev = parseFloat(previous);
       let curr = parseFloat(current);
       let result;
-
       switch (operation) {
         case '+': result = prev + curr; break;
         case '-': result = prev - curr; break;
         case '*': result = prev * curr; break;
         case '/': result = prev / curr; break;
       }
-
       current = result.toString();
       secondary.textContent = `${formatNumber(previous)} ${operation} ${formatNumber(current)} =`;
       operation = null;
@@ -177,7 +143,23 @@
     }
 
     updateDisplay();
+
+    // Auto-resize for all screens
+    const calc = document.querySelector('.calculator');
+    function resize() {
+      let scale = Math.min(window.innerWidth / 320 * 0.95, window.innerHeight / 680 * 0.9);
+      scale = Math.max(0.6, Math.min(scale, 2));
+      calc.style.transform = `scale(${scale})`;
+    }
+    window.addEventListener('load', resize);
+    window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', () => setTimeout(resize, 300));
+    resize();
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
   </script>
- <script src="240p-4k.js"></script>
 </body>
 </html>
